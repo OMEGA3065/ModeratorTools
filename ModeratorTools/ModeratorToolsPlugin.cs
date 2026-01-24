@@ -29,6 +29,9 @@ public sealed class ModeratorToolsPlugin : Plugin<ModeratorToolsConfig>
         CustomHandlersManager.RegisterEventsHandler(_handlers);
         CommandRegistrationProcessor.RegisterAll(this);
         RegenerationCommand.Tick();
+#if IsHarmonyBuild
+        ModeratorTools.HarmonyCompatibility.HarmonyCompatManager.TryEnableHarmonyCompat();
+#endif
     }
 
     public override void Disable()
@@ -36,6 +39,9 @@ public sealed class ModeratorToolsPlugin : Plugin<ModeratorToolsConfig>
         Instance = null;
         CustomHandlersManager.UnregisterEventsHandler(_handlers);
         CommandRegistrationProcessor.UnregisterAll(this);
+#if IsHarmonyBuild
+        ModeratorTools.HarmonyCompatibility.HarmonyCompatManager.TryDisableHarmonyCompat();
+#endif
     }
 
 }

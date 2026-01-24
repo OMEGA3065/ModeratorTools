@@ -38,5 +38,8 @@ public sealed class ModeratorToolsConfig
         new(RoomType.LczArmory, -4.5f),
         new(RoomType.LczCurve, 1, 0, -1)
     ];
-
+    
+    [Description("When set to something, will allow anyone with the permission to kick users. " +
+                 "Users with vanilla ban perms will still be able to kick people.")]
+    public string KickCommandPermissionName { get; set; } = "mtools.kick";
 }
