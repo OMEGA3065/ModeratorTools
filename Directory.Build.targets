@@ -1,6 +1,9 @@
 ﻿<Project>
     <Import Project="ReferencePath.props.user" Condition="Exists('ReferencePath.props.user')" />
     <PropertyGroup>
+<!--        <IsHarmonyBuild>false</IsHarmonyBuild>-->
+        <DefineConstants>$(DefineConstants);$(IsHarmonyBuild)</DefineConstants>
+        
         <ReferencePath Condition="$(ReferencePath) == ''">$(SL_REFERENCES)</ReferencePath>
         <AssemblySearchPaths>$(ReferencePath);$(AssemblySearchPaths)</AssemblySearchPaths>
 
@@ -45,5 +48,17 @@
         </PropertyGroup>
         <WriteLinesToFile File="$(Props)" Lines="$(Template)" Condition="!Exists($(Props))" />
         <Message Text="The PluginOutputPath property is not specified! You might want to set the property in the PluginOutputPath.props.user file." Importance="high"/>
+    </Target>
+    <Target Name="HarmonyBuilds" AfterTargets="Build" Condition="'$(IsHarmonyBuild)'==''">
+        <MSBuild Projects="$(MSBuildProjectFile)"
+                 Properties="IsHarmonyBuild=true;Configuration=$(Configuration);AssemblyName=$(AssemblyName)_harmony"
+                 Targets="Build"/>
+        <MSBuild Projects="$(MSBuildProjectFile)"
+                 Properties="IsHarmonyBuild=false;Configuration=$(Configuration)"
+                 Targets="Build"/>
+
+        <PropertyGroup>
+            <SkipBuild>true</SkipBuild>
+        </PropertyGroup>
     </Target>
 </Project>
