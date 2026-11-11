@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Axwabo.Helpers.Config;
+using InventorySystem.Items;
 using PlayerRoles;
 
 namespace ModeratorTools.Commands;

@@ -1,4 +1,5 @@
 ﻿using InventorySystem;
+using InventorySystem.Items;
 
 namespace ModeratorTools.Commands;
 

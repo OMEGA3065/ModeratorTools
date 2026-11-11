@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Reference Include="Assembly-CSharp" Publicize="true" />
-        <Reference Include="Assembly-CSharp-firstpass" />
+        <Reference Include="Northwood.SCPSL" Publicize="true" />
+        <Reference Include="DigitalDust" />
         <Reference Include="Axwabo.CommandSystem" />
         <Reference Include="Axwabo.Helpers" />
         <Reference Include="CommandSystem.Core" />

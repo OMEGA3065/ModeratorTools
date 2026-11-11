@@ -1,4 +1,5 @@
-﻿using PlayerStatsSystem;
+﻿using InventorySystem.Items;
+using PlayerStatsSystem;
 using Utils;
 
 namespace ModeratorTools.Commands;

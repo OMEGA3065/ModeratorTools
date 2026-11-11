@@ -65,7 +65,7 @@ public static class JailConfigUtils
         }
 
         position = (Vector3) config.ExtraPositions[index] + Vector3.up + RoomIdentifier.AllRoomIdentifiers
-            .Where(e => e.Name == RoomName.Outside)
+            .Where(e => e.Name == RoomName.SzExterior)
             .Select(e => e.transform.position)
             .FirstOrDefault();
         return true;

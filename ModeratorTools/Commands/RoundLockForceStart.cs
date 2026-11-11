@@ -15,7 +15,7 @@ public sealed class RoundLockForceStart : CommandBase
         var decontDisabled = false;
         if (arguments.Count == 0 || arguments.At(0).ToLower() is not ("1" or "true" or "yes"))
         {
-            Decontamination.Status = DecontaminationController.DecontaminationStatus.Disabled;
+            Decontamination.Status = DecontaminationStatus.Disabled;
             decontDisabled = true;
         }
 
