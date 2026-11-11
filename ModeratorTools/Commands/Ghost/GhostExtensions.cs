@@ -9,14 +9,26 @@ public static class GhostExtensions
 
     public static bool Enabled => ModeratorToolsPlugin.Cfg?.Ghost ?? true;
 
-    public static GhostController GetGhostController(this ReferenceHub hub) => Player.Get(hub).GetGhostController();
-
-    public static GhostController GetGhostController(this Player player) => Controllers.GetOrCreateValue(player);
-
-    public static bool IsGhostInvisibleTo(this Player target, Player observer)
+    extension(ReferenceHub hub)
     {
-        var controller = target.GetGhostController();
-        return controller.IsFullyInvisible || controller.InvisibleTo.Contains(observer.UserId);
+
+        public GhostController GhostController => Player.Get(hub).GhostController;
+
+    }
+
+    extension(Player player)
+    {
+
+        public GhostController GhostController => Controllers.GetOrCreateValue(player);
+
+        public bool IsGhostInvisibleTo(Player observer)
+        {
+            if (ReferenceEquals(player, null) || ReferenceEquals(observer, null) || string.IsNullOrEmpty(observer.UserId))
+                return false;
+            var controller = player.GhostController;
+            return controller.IsFullyInvisible || controller.InvisibleTo.Contains(observer.UserId);
+        }
+
     }
 
 }

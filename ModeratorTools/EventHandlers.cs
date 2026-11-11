@@ -1,4 +1,5 @@
-﻿using LabApi.Events.Arguments.PlayerEvents;
+﻿using AFK;
+using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Events.Arguments.Scp096Events;
 using LabApi.Events.Arguments.Scp173Events;
 using LabApi.Events.CustomHandlers;
@@ -27,7 +28,7 @@ internal sealed class EventHandlers : CustomEventsHandler
         var p = ev.Player;
         if (ev.Door.IsLocked && !p.IsBypassEnabled)
             return;
-        var data = p.GetData();
+        var data = p.Data;
         switch (ev.Door)
         {
             case Gate gate when data.PryGates && gate.TryPry(p):
@@ -41,34 +42,45 @@ internal sealed class EventHandlers : CustomEventsHandler
     {
         if (ev.DamageHandler is AttackerDamageHandler {Attacker.Hub: var attacker} adh
             && attacker != null
-            && attacker.GetData().InstantKill)
+            && attacker.Data.InstantKill)
             adh.Damage = -1;
     }
 
     public override void OnScp096AddingTarget(Scp096AddingTargetEventArgs ev)
     {
         var p = ev.Target;
-        if (ModeratorToolsPlugin.Cfg.TutorialsImmuneToScp096 && p.Role == RoleTypeId.Tutorial || p.GetData().Scp096Immunity)
+        if (ModeratorToolsPlugin.Cfg.TutorialsImmuneToScp096 && p.Role == RoleTypeId.Tutorial || p.Data.Scp096Immunity)
             ev.IsAllowed = false;
     }
 
     public override void OnScp173AddingObserver(Scp173AddingObserverEventArgs ev)
     {
         var p = ev.Target;
-        if (ModeratorToolsPlugin.Cfg.TutorialsImmuneToScp173 && p.Role == RoleTypeId.Tutorial || p.GetData().Scp173Immunity)
+        if (ModeratorToolsPlugin.Cfg.TutorialsImmuneToScp173 && p.Role == RoleTypeId.Tutorial || p.Data.Scp173Immunity)
             ev.IsAllowed = false;
     }
 
     public override void OnPlayerChangedRole(PlayerChangedRoleEventArgs ev)
     {
-        if (!ModeratorToolsPlugin.Cfg.GodModeTutorials)
-            return;
         var wasTutorial = ev.OldRole == RoleTypeId.Tutorial;
         var isTutorial = ev.NewRole.RoleTypeId == RoleTypeId.Tutorial;
         if (wasTutorial == isTutorial)
             return;
-        var p = ev.Player;
-        var data = p.GetData();
+        if (ModeratorToolsPlugin.Cfg.GodModeTutorials)
+            HandleGodTutorial(wasTutorial, ev.Player);
+        if (ModeratorToolsPlugin.Cfg.TutorialsImmuneToAfkKick)
+            HandleAfkTutorial(wasTutorial, ev.Player);
+    }
+
+    public override void OnPlayerValidatedVisibility(PlayerValidatedVisibilityEventArgs ev)
+    {
+        if (GhostExtensions.Enabled && ev.Target.IsGhostInvisibleTo(ev.Player))
+            ev.IsVisible = false;
+    }
+
+    private static void HandleGodTutorial(bool wasTutorial, Player p)
+    {
+        var data = p.Data;
         if (wasTutorial)
         {
             p.IsGodModeEnabled = data.WasInGodMode;
@@ -79,10 +91,39 @@ internal sealed class EventHandlers : CustomEventsHandler
         p.IsGodModeEnabled = true;
     }
 
-    public override void OnPlayerValidatedVisibility(PlayerValidatedVisibilityEventArgs ev)
+    private static void HandleAfkTutorial(bool wasTutorial, Player p)
     {
-        if (GhostExtensions.Enabled && ev.Target.IsGhostInvisibleTo(ev.Player))
-            ev.IsVisible = false;
+        var data = p.Data;
+        if (wasTutorial)
+        {
+            p.AfkImmune = data.WasAfkImmune;
+            return;
+        }
+
+        data.WasAfkImmune = p.AfkImmune;
+        p.AfkImmune = true;
+    }
+
+}
+
+file static class PlayerExtensions
+{
+
+    extension(Player player)
+    {
+
+        public bool AfkImmune
+        {
+            get => !AFKManager.AFKTimers.ContainsKey(player.ReferenceHub);
+            set
+            {
+                if (value)
+                    AFKManager.RemovePlayer(player.ReferenceHub);
+                else
+                    AFKManager.AddPlayer(player.ReferenceHub);
+            }
+        }
+
     }
 
 }
